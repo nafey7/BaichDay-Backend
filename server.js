@@ -5,6 +5,9 @@ const morgan = require('morgan');
 const mongoose = require('mongoose');
 const cors = require('cors');
 
+const userRoute = require('./routes/userRoute');
+
+
 const app = express();
 
 mongoose.connect(process.env.dbURL, { useNewUrlParser: true, useUnifiedTopology: true })
@@ -28,11 +31,14 @@ app.use(express.json({limit: '10mb'}));
 //   });
 
 
-// app.use((req,res,next) => {
-//     let req_time = new Date().toISOString();
-//     console.log('The time of the request:',req_time);
-//     next();
-// });
+app.use((req,res,next) => {
+    let req_time = new Date().toISOString();
+    console.log('The time of the request:',req_time);
+    // console.log(req_time.split('T')[1].split('.')[0]);
+    next();
+});
+
+app.use('/user', userRoute);
 
 
 
