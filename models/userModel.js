@@ -49,7 +49,18 @@ const userSchema = new Schema({
     zipCode: {
         type: String,
         default: ''
-    }
+    },
+    role: {
+        type: String
+    },
+    review: {
+        type: Array,
+        "default" : []
+    },
+    ratingArray: {
+        type: Array,
+        "default" : []
+    },
 },
  {
     timestamps: true

@@ -6,6 +6,8 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 
 const userRoute = require('./routes/userRoute');
+const adminRoute = require('./routes/adminRoute');
+const productRoute = require('./routes/productRoute');
 
 
 const app = express();
@@ -39,7 +41,8 @@ app.use((req,res,next) => {
 });
 
 app.use('/user', userRoute);
-
+app.use('/admin', adminRoute);
+app.use('/product', productRoute);
 
 
 const port = process.env.PORT;
