@@ -29,8 +29,7 @@ const productSchema = new Schema({
     },
     bid: {
         // array will contain objects {bidderID, bidCost}
-        type: Array,
-        "default" : []
+        type: Array
     }
 },
  {

@@ -4,6 +4,7 @@ const jwt = require('jsonwebtoken');
 
 const User = require('../models/userModel');
 const Product = require ('../models/productModel');
+const { updateOne } = require("../models/userModel");
 
 // User Signup
 exports.Signup = async (req,res) => {
@@ -59,14 +60,19 @@ exports.Login = async (req,res) => {
 
 exports.AddProduct = async (req,res) => {
     try{
+        let arr = [{userID: "0",bidCost: 0}]
         const query = Product.create({
             name: req.body.name,
             cost: req.body.cost,
             image: req.body.image,
             description: req.body.description,
-            sold: false
+            sold: false,
+            bid: arr
+
         });
         const productAdded = await query;
+
+        // const querySecond = updateOne({name: })
 
         res.status(201).json({status: 201, message: 'success', data: productAdded});
     }
