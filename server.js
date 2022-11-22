@@ -22,7 +22,7 @@ app.use(express.json({limit: '10mb'}));
 
 app.use((req, res, next) => {
     // const allowedOrigins = ['https://life-fe.vercel.app', 'http://localhost:3000'];
-    const allowedOrigins = ['http://localhost:3000'];
+    const allowedOrigins = ['https://63764ffe6cf2ba262ac49354--baichday.netlify.app','http://localhost:3000'];
     const origin = req.headers.origin;
     if (allowedOrigins.includes(origin)) {
          res.setHeader('Access-Control-Allow-Origin', origin);

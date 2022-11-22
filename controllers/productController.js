@@ -20,7 +20,7 @@ exports.ViewProducts = async (req,res) => {
 exports.SearchProduct = async (req,res) => {
     try{
 
-        const query = Product.find({name: req.body.productName});
+        const query = Product.find({name: req.body.name});
         const searchProduct = await query;
 
         res.status(200).json({status: 200, message: 'success', data: searchProduct});
