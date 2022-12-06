@@ -1,7 +1,6 @@
 const express = require('express');
 const controller = require('../controllers/userController');
 
-// Login and Signup
 const router = express.Router();
 
 
@@ -24,5 +23,25 @@ router
 router
 .route('/bidonproduct')
 .post(controller.BidOnProduct);
+
+// USER CAN VIEW PRODUCTS THEY HAVE CURRENTLY BID ON
+router
+.route('/viewcurrentbidproducts')
+.post(controller.ViewCurrentBidProducts);
+
+// USER CAN VIEW ALL PRODUCTS THEY HAVE BID ON
+router
+.route('/viewallbidproducts')
+.post(controller.ViewAllBidProducts);
+
+// SUBMIT A REVIEW TO SELLER
+router
+.route('/submitreviewtoseller')
+.post(controller.SubmitReviewToSeller);
+
+// SUBMIT A REVIEW TO BIDDER
+router
+.route('/submitreviewtobidder')
+.post(controller.SubmitReviewToBidder);
 
 module.exports = router;

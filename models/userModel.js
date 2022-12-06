@@ -53,14 +53,30 @@ const userSchema = new Schema({
     role: {
         type: String
     },
-    review: {
+    reviewAsSeller: {
         type: Array,
         "default" : []
     },
-    ratingArray: {
+    ratingArrayAsSeller: {
         type: Array,
         "default" : []
     },
+    ratingAsSeller: {
+        type: Number,
+        default: 0
+    },
+    reviewAsBidder: {
+        type: Array,
+        "default" : []
+    },
+    ratingArrayAsBidder: {
+        type: Array,
+        "default" : []
+    },
+    ratingAsBidder: {
+        type: Number,
+        default: 0
+    }
 },
  {
     timestamps: true
