@@ -4,7 +4,8 @@ const jwt = require('jsonwebtoken');
 
 const User = require('../models/userModel');
 const Product = require ('../models/productModel');
-const { updateOne } = require("../models/userModel");
+const Helper = require ('../controllers/helperController');
+// const { updateOne } = require("../models/userModel");
 
 // User Signup
 exports.Signup = async (req,res) => {
@@ -68,7 +69,6 @@ exports.AddProduct = async (req,res) => {
             description: req.body.description,
             sold: false,
             bid: arr
-
         });
         const productAdded = await query;
 
@@ -98,6 +98,102 @@ exports.BidOnProduct = async (req,res) => {
         const bidOnProduct = await query;
 
         res.status(200).json({status: 200, message: 'success', data: bidOnProduct});
+    }
+    catch(err){
+        console.log(err);
+        res.status(404).json({status: 404, message: 'fail', data: err.message});
+    }
+}
+
+// View Product that I have currently bid on
+exports.ViewCurrentBidProducts = async (req,res) => {
+    try{
+        const query = Product.find({sold: false}).elemMatch("bid", {userID: req.body.userID}).select('-image');
+        const viewProducts = await query;
+
+        res.status(200).json({status: 200, message: 'success', data: viewProducts});
+    }
+    catch(err){
+        console.log(err);
+        res.status(404).json({status: 404, message: 'fail', data: err.message});
+    }
+}
+
+// View All Products I have bid on
+exports.ViewAllBidProducts = async (req,res) => {
+    try{
+        const query = Product.find().elemMatch("bid", {userID: req.body.userID}).select('-image');
+        const viewProducts = await query;
+
+        res.status(200).json({status: 200, message: 'success', data: viewProducts});
+    }
+    catch(err){
+        console.log(err);
+        res.status(404).json({status: 404, message: 'fail', data: err.message});
+    }
+}
+
+// Give Rating to a SELLER
+exports.SubmitReviewToSeller = async (req,res) => {
+    try{
+
+        // Creating object for adding to review array
+
+        let finalObject = {};
+        finalObject.review = req.body.review;
+        finalObject.rating = req.body.rating;
+        finalObject.bidderID = req.body.userID;
+        finalObject.date = req.body.timeApi;
+
+        const filter = {_id: req.body.sellerID};
+        const update = {$push: {reviewAsSeller: finalObject, ratingArrayAsSeller: req.body.rating}};
+        
+        const query = User.findOneAndUpdate(filter, update, {new: true, runValidators: true});
+        const submitReview = await query;
+
+        // Calculate Rating
+        const rating = Helper.CalculateRating(submitReview.ratingArrayAsSeller);
+
+        // Store rating in User DB
+        const querySecond = User.findOneAndUpdate(filter, {ratingAsSeller: rating}, {new: true, runValidators: true});
+        const updateRating = await querySecond;
+
+        res.status(201).json({status: 201, message: 'success', data: updateRating});
+    }
+    catch(err){
+        console.log(err);
+        res.status(404).json({status: 404, message: 'fail', data: err.message});
+    }
+}
+
+
+// Give Rating to a BIDDER
+exports.SubmitReviewToBidder = async (req,res) => {
+    try{
+
+        // Creating object for adding to review array
+
+        let finalObject = {};
+        finalObject.review = req.body.review;
+        finalObject.rating = req.body.rating;
+        finalObject.sellerID = req.body.userID;
+        finalObject.date = req.body.timeApi;
+
+        const filter = {_id: req.body.bidderID};
+        const update = {$push: {reviewAsBidder: finalObject, ratingArrayAsBidder: req.body.rating}};
+        
+        // Insert review and rating in respective arrays
+        const query = User.findOneAndUpdate(filter, update, {new: true, runValidators: true});
+        const submitReview = await query;
+
+        // Calculate rating
+        const rating = Helper.CalculateRating(submitReview.ratingArrayAsBidder);
+
+        // Store rating in User DB
+        const querySecond = User.findOneAndUpdate(filter, {ratingAsBidder: rating}, {new: true, runValidators: true});
+        const updateRating = await querySecond;
+
+        res.status(201).json({status: 201, message: 'success', data: updateRating});
     }
     catch(err){
         console.log(err);
