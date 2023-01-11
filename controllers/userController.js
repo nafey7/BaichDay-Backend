@@ -4,16 +4,34 @@ const jwt = require('jsonwebtoken');
 
 const User = require('../models/userModel');
 const Product = require ('../models/productModel');
+const BannedUser = require ('../models/bannedUsersModel');
 const Helper = require ('../controllers/helperController');
 // const { updateOne } = require("../models/userModel");
 
 // User Signup
 exports.Signup = async (req,res) => {
     try{
-        if(!req.body.emailAddress || !req.body.password){
-            throw new Error ('Please enter an email or password');
+
+        // Check: Whether user banned or not
+        const banQuery = BannedUser.find().or([
+            {emailAddress: req.body.emailAddress},
+            {phoneNumber: req.body.phoneNumber},
+            {address: req.body.address}]);
+        const banCheck = await banQuery;
+        
+        // console.log(banCheck);
+        if (banCheck.length != 0){
+            throw new Error ('This user is banned from the platform');
         }
         
+        // Check: Whether another user is registered with same email address or not
+        const emailCheckQuery = User.find({emailAddress: req.body.emailAddress});
+        const emailCheck = await emailCheckQuery;
+
+        if (emailCheck.length != 0){
+            throw new Error ('Account already exists with this emai');
+        }
+
         const query = User.create({
             firstName: req.body.firstName,
             lastName: req.body.lastName,
@@ -50,6 +68,20 @@ exports.Login = async (req,res) => {
         }
 
         res.status(200).json({status: 200, message: 'success', token: token, data: FindUser});
+    }
+    catch(err){
+        console.log(err);
+        res.status(404).json({status: 404, message: 'fail', data: err.message});
+    }
+}
+
+// View Profile
+exports.ViewProfile = async (req,res) => {
+    try{
+        const query = User.findOne({_id: req.body.userID});
+        const viewProfile = await query;
+
+        res.status(200).json({status: 200, message: 'success', data: viewProfile});
     }
     catch(err){
         console.log(err);

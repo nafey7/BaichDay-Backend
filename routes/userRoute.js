@@ -14,6 +14,11 @@ router
 .route('/login')
 .post(controller.Login);
 
+// VIEW USER PROFILE
+router
+.route('/viewprofile')
+.post(controller.ViewProfile)
+
 // USER (SELLER) ADDS PRODUCT
 router
 .route('/addproduct')

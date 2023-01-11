@@ -5,6 +5,13 @@ const router = express.Router();
 
 
 // ADMIN-LOGIN
-router.route('/login').post(controller.Login);
+router
+.route('/login')
+.post(controller.Login);
+
+// BAN USER FROM THE PLATFORM
+router
+.route('/banuser')
+.post(controller.BanUser);
 
 module.exports = router;
