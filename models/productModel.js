@@ -21,7 +21,7 @@ const productSchema = new Schema({
         type: String,
         required: true
     },
-    sellerID: {
+    userID: {
         type: String
     },
     sold: {

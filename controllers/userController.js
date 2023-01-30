@@ -96,6 +96,7 @@ exports.AddProduct = async (req,res) => {
         let arr = [{userID: "0",bidCost: 0}]
         const query = Product.create({
             name: req.body.name,
+            userID: req.body.userID,
             cost: req.body.cost,
             image: req.body.image,
             description: req.body.description,
