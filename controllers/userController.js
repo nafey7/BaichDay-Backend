@@ -144,7 +144,9 @@ exports.ViewCurrentBidProducts = async (req,res) => {
         const query = Product.find({sold: false}).elemMatch("bid", {userID: req.body.userID}).select('-image');
         const viewProducts = await query;
 
-        res.status(200).json({status: 200, message: 'success', data: viewProducts});
+        let finalData = Helper.EvaluateParticularBid(viewProducts, req);
+
+        res.status(200).json({status: 200, message: 'success', data: finalData});
     }
     catch(err){
         console.log(err);
@@ -158,7 +160,9 @@ exports.ViewAllBidProducts = async (req,res) => {
         const query = Product.find().elemMatch("bid", {userID: req.body.userID}).select('-image');
         const viewProducts = await query;
 
-        res.status(200).json({status: 200, message: 'success', data: viewProducts});
+        let finalData = Helper.EvaluateParticularBid(viewProducts, req);
+
+        res.status(200).json({status: 200, message: 'success', data: finalData});
     }
     catch(err){
         console.log(err);
