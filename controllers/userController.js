@@ -89,6 +89,63 @@ exports.ViewProfile = async (req,res) => {
     }
 }
 
+// Edit Profile
+
+exports.EditProfile = async(req,res) => {
+    try{
+        let update = {};
+        const filter = {_id: req.body.userID};
+
+        if (req.body.emailAddress){
+            const checkQuery = User.findOne({emailAddress: req.body.emailAddress});
+            const checkEmail = await checkQuery;
+
+            if (checkEmail == null){
+                update.emailAddress = req.body.emailAddress;
+            }
+            else{
+                throw new Error ('This email is already in use');
+            }
+        }
+
+        if (req.body.firstName){
+            update.firstName= req.body.firstName;
+        }
+        if (req.body.lastName){
+            update.lastName = req.body.lastName;
+        }
+        if (req.body.phoneNumber){
+            update.phoneNumber = req.body.phoneNumber;
+        }
+        if (req.body.address){
+            update.address = req.body.address;
+        }
+        if (req.body.city){
+            update.city = req.body.city;
+        }
+        if (req.body.country){
+            update.country = req.body.country;
+        }
+        if (req.body.password){
+            update.password = req.body.password;
+        }
+
+        // console.log(update);
+
+        const query = User.updateOne(filter, update, {new: true, runValidators: true});
+        const updateInfo = await query;
+
+        const querySecond = User.findOne({_id: req.body.userID});
+        const userInfo = await querySecond;
+        
+        res.status(200).json({status: '200', message: 'success', data: userInfo});
+    }
+    catch(err){
+        console.log(err);
+        res.status(404).json({status: 404, message: "fail", data: err.message});
+    }
+}
+
 // Add a product (Role: Seller)
 
 exports.AddProduct = async (req,res) => {

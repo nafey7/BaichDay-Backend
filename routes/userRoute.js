@@ -19,6 +19,11 @@ router
 .route('/viewprofile')
 .post(controller.ViewProfile)
 
+// EDIT USER PROFILE
+router
+.route('/editprofile')
+.post(controller.EditProfile)
+
 // USER (SELLER) ADDS PRODUCT
 router
 .route('/addproduct')
