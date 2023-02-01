@@ -38,6 +38,7 @@ exports.EvaluateParticularBid = (viewProducts, req) => {
                 }
 
                 mockData.userBidArray = userBidArray;
+                mockData.maxBid = Math.max.apply(Math, userBidArray);
 
                 finalData.push (mockData);
             }
