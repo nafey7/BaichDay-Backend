@@ -29,7 +29,7 @@ exports.Signup = async (req,res) => {
         const emailCheck = await emailCheckQuery;
 
         if (emailCheck.length != 0){
-            throw new Error ('Account already exists with this emai');
+            throw new Error ('Account already exists with this email');
         }
 
         const query = User.create({
@@ -129,8 +129,6 @@ exports.EditProfile = async(req,res) => {
         if (req.body.password){
             update.password = req.body.password;
         }
-
-        // console.log(update);
 
         const query = User.updateOne(filter, update, {new: true, runValidators: true});
         const updateInfo = await query;
