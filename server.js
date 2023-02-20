@@ -5,6 +5,7 @@ dotenv.config({path: './config.env'});
 const morgan = require('morgan');
 const mongoose = require('mongoose');
 const cors = require('cors');
+const socket = require("socket.io");
 
 // Routes imported
 const userRoute = require('./routes/userRoute');
@@ -13,6 +14,14 @@ const productRoute = require('./routes/productRoute');
 
 
 const app = express();
+// Socket Handling
+
+
+// Server starting at a specific port number
+const port = process.env.PORT;
+const server = app.listen(port, ()=> {
+    console.log("App is running on port:",port);
+});
 
 // Database connecting to Backend Server
 mongoose.connect(process.env.dbURL, { useNewUrlParser: true, useUnifiedTopology: true })
@@ -55,14 +64,25 @@ app.use((req,res,next) => {
     next();
 });
 
+// Assign a socket to request which is related to chat
+app.use((req,res,next) => {
+    // create a socket in 2 cases. Opening a chat maybe or adding a product
+    if (req.body.chat){
+        // console.log(req.protocol + '://' + req.get('host') + req.originalUrl);
+        const io = socket(server, {
+            cors: {
+                origin: "*",
+              },
+        });
+
+        req.io = io;
+    }
+
+    next();
+})
+
 // Middlewares to direct the requests to their respective routes.
 app.use('/user', userRoute);
 app.use('/admin', adminRoute);
 app.use('/product', productRoute);
 
-
-// Server starting at a specific port number
-const port = process.env.PORT;
-app.listen(port, ()=> {
-    console.log("App is running on port:",port);
-});

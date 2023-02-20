@@ -2,11 +2,11 @@ const nodemailer = require("nodemailer");
 const pbkdf2 = require('pbkdf2');
 const jwt = require('jsonwebtoken');
 
+
 const User = require('../models/userModel');
 const Product = require ('../models/productModel');
 const BannedUser = require ('../models/bannedUsersModel');
 const Helper = require ('../controllers/helperController');
-// const { updateOne } = require("../models/userModel");
 
 // User Signup
 exports.Signup = async (req,res) => {
@@ -52,6 +52,7 @@ exports.Signup = async (req,res) => {
 exports.Login = async (req,res) => {
     try{
 
+        // Give Error if Email or Password fields are empty
         if (!req.body.emailAddress || !req.body.password){
             throw new Error('Email or Password is not entered');
         }
@@ -63,6 +64,7 @@ exports.Login = async (req,res) => {
         const FindUser = await query;
         const token = jwt.sign({id: FindUser._id}, 'baichday-secret');
 
+        // Give Error if Email or Password is wrong
         if (FindUser == null){
             throw new Error('Email or Password is wrong');
         }
@@ -148,19 +150,24 @@ exports.EditProfile = async(req,res) => {
 
 exports.AddProduct = async (req,res) => {
     try{
+
+        const now = new Date();
+        const timestamp = now.getTime();
+        const endTimestamp = timestamp + req.body.duration * 60 * 60 * 1000;
+        const endTime = new Date(endTimestamp);
+
         let arr = [{userID: "0",bidCost: 0}]
         const query = Product.create({
             name: req.body.name,
             userID: req.body.userID,
             cost: req.body.cost,
             image: req.body.image,
+            endTime :endTime,
             description: req.body.description,
             sold: false,
             bid: arr
         });
-        const productAdded = await query;
-
-        // const querySecond = updateOne({name: })
+        let productAdded = await query;
 
         res.status(201).json({status: 201, message: 'success', data: productAdded});
     }
@@ -286,6 +293,18 @@ exports.SubmitReviewToBidder = async (req,res) => {
         const updateRating = await querySecond;
 
         res.status(201).json({status: 201, message: 'success', data: updateRating});
+    }
+    catch(err){
+        console.log(err);
+        res.status(404).json({status: 404, message: 'fail', data: err.message});
+    }
+}
+
+exports.Timer = async (req,res) => {
+    try{
+        
+        console.log(Helper.TimeRemaining());
+        res.send('success')
     }
     catch(err){
         console.log(err);

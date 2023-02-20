@@ -54,4 +54,9 @@ router
 .route('/submitreviewtobidder')
 .post(controller.SubmitReviewToBidder);
 
+// TEST TIMER
+router
+.route('/timer')
+.post(controller.Timer);
+
 module.exports = router;

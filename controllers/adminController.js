@@ -30,7 +30,6 @@ exports.Login = async (req,res) => {
     }
 }
 
-// Probably search the user wali bhi honi chahye functionality by using a good search algorithm.
 // Admin bans the USER (Bidder or Seller)
 exports.BanUser = async (req,res) => {
     try{
@@ -49,3 +48,7 @@ exports.BanUser = async (req,res) => {
         res.status(404).json({status: 404, message: 'fail', data: err.message});s
     }
 }
+
+// Model.find({updatedAt : { $gte : new Date(2014, 4, 24)} }, function(err, docs){
+//     console.log(docs);
+// });

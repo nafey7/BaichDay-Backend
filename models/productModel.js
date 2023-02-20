@@ -28,8 +28,13 @@ const productSchema = new Schema({
         type: Boolean
     },
     bid: {
-        // array will contain objects {bidderID, bidCost}
         type: Array
+    },
+    timeRemaining: {
+        type: Number
+    },
+    endTime: {
+        type: Date
     }
 },
  {

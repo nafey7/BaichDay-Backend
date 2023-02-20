@@ -30,6 +30,28 @@ exports.SearchProduct = async (req,res) => {
     }
     catch(err){
         console.log(err);
-        res.status(404).json({status: 404, message: 'fail', data: err.msg})
+        res.status(404).json({status: 404, message: 'fail', data: err.message})
+    }
+}
+
+exports.ViewSingleProduct = async (req,res) => {
+    try{
+        const query = Product.findOne({_id: req.body.productID});
+        const findProduct = await query;
+
+        const now = new Date();
+        const timestamp = now.getTime();
+        const nowDate = new Date(timestamp);
+        
+        const diffTime = Math.abs(findProduct.endTime - nowDate);
+        const timeRemaining = Math.ceil(diffTime / (1000));
+
+        // console.log(findProduct.endTime);
+        // console.log(findProduct.createdAt);
+        res.status(200).json({status: 200, message: 'success', data: timeRemaining})
+    }
+    catch(err){
+        console.log(err);
+        res.status(404).json({status: 404, message: 'fail', data: err.message})
     }
 }

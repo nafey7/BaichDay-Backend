@@ -11,6 +11,11 @@ router
 
 // Search Product
 router
-.route('/search').post(controller.SearchProduct); 
+.route('/search').post(controller.SearchProduct);
+
+// View Single Product
+router
+.route('/single')
+.post(controller.ViewSingleProduct)
 
 module.exports = router;
