@@ -36,18 +36,27 @@ exports.SearchProduct = async (req,res) => {
 
 exports.ViewSingleProduct = async (req,res) => {
     try{
-        const query = Product.findOne({_id: req.body.productID});
+        let filter = {_id: req.body.productID};
+        let update = {sold: true};
+
+        const query = Product.findOne(filter);
         const findProduct = await query;
 
         const now = new Date();
         const timestamp = now.getTime();
         const nowDate = new Date(timestamp);
         
-        const diffTime = Math.abs(findProduct.endTime - nowDate);
-        const timeRemaining = Math.ceil(diffTime / (1000));
+        const diffTime = findProduct.endTime - nowDate;
 
-        // console.log(findProduct.endTime);
-        // console.log(findProduct.createdAt);
+        let timeRemaining = Math.ceil(diffTime / (1000));
+
+        
+        if (timeRemaining <= 0){
+            const querySecond = Product.updateOne(filter, update, {new: true, runValidators: true});
+            const updateStatus = await querySecond;
+            timeRemaining = 0;
+        }
+
         res.status(200).json({status: 200, message: 'success', data: timeRemaining})
     }
     catch(err){
