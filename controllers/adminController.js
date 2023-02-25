@@ -8,16 +8,19 @@ const bannedUser = require ('../models/bannedUsersModel');
 exports.Login = async (req,res) => {
     try{
 
+        // Find query which will return entity from database with provided credentials (email address and password)
         const query = Admin.findOne({
             emailAddress : req.body.emailAddress,
             password: pbkdf2.pbkdf2Sync(req.body.password, 'baichday-secret', 1, 32, 'sha512')
         })
         const Login = await query;
 
+        // Returns an error if login credentials are wrong
         if (Login == null){
             throw new Error('Email or Password is wrong');
         }
 
+        // Creates a token and send it to front-end in response for authentication of Admin on each route access
         const token = jwt.sign({id: Login._id}, 'baichday-secret');
         
 
@@ -33,6 +36,9 @@ exports.Login = async (req,res) => {
 // Admin bans the USER (Bidder or Seller)
 exports.BanUser = async (req,res) => {
     try{
+
+        // Adding credentials (email address, phone number and home address) of user to the database of Banned users. User with these credentials will not be permitted on the auction platform for registration/Signup
+        
         const query = bannedUser.create({
         emailAddress: req.body.emailAddress,
         phoneNumber: req.body.phoneNumber,

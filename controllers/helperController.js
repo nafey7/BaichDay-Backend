@@ -1,5 +1,6 @@
 exports.CalculateRating = (arr) => {
 
+    // This function calculates the rating of the seller/bidder
     let sum=0;
     for (let i=0;i<arr.length;i++){
         sum = sum+arr[i];
@@ -14,7 +15,6 @@ exports.EvaluateParticularBid = (viewProducts, req) => {
     let finalData = [];
 
         let userBidArray, mockData;
-        // console.log(viewProducts.length);
         if (viewProducts.length > 0){
             let bidArray, bidArrayLength;
             for (let i=0;i<viewProducts.length;i++){

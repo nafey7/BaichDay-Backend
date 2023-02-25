@@ -21,11 +21,14 @@ const productSchema = new Schema({
         type: String,
         required: true
     },
+    category: {
+        type: String
+    },
     userID: {
         type: String
     },
     sold: {
-        type: Boolean
+        type: String
     },
     bid: {
         type: Array

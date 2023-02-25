@@ -76,6 +76,9 @@ const userSchema = new Schema({
     ratingAsBidder: {
         type: Number,
         default: 0
+    },
+    wallet: {
+        type: Number
     }
 },
  {

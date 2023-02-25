@@ -14,8 +14,6 @@ const productRoute = require('./routes/productRoute');
 
 
 const app = express();
-// Socket Handling
-
 
 // Server starting at a specific port number
 const port = process.env.PORT;
@@ -48,25 +46,24 @@ app.use((req, res, next) => {
 
   // Middleware to display time at which each request was made
 app.use((req,res,next) => {
-    let req_time = new Date().toISOString();
+    
+    let req_time2 = new Date();
 
-    const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+    let date = req_time2.getDate()+'/'+(req_time2.getMonth()+1)+'/'+req_time2.getFullYear();
+    let time = req_time2.getUTCHours()+':'+req_time2.getMinutes();
 
-    let dateArray = req_time.split('T')[0].split('-');
-    let month = parseInt(dateArray[1]);
-    month = monthNames[month-1];
+    console.log('Date of request:', req_time2.getDate()+'/'+(req_time2.getMonth()+1)+'/'+req_time2.getFullYear());
+    console.log('Time of the request:', req_time2.getUTCHours()+':'+req_time2.getMinutes());
 
-    let date = month + " " + dateArray[2] + " " + dateArray[0];
-    req.body.timeApi  = date;
-    console.log('Date of request:',date);
-    console.log('Time of request:', req_time.split('T')[1]);
+    req.body.dateApi = date;
+    req.body.timeApi = time;
     
     next();
 });
 
-// Assign a socket to request which is related to chat
+// Middleware to assign a socket to user as soon as they open the chat feature of the web application (Front-End side)
 app.use((req,res,next) => {
-    // create a socket in 2 cases. Opening a chat maybe or adding a product
+
     if (req.body.chat){
         // console.log(req.protocol + '://' + req.get('host') + req.originalUrl);
         const io = socket(server, {

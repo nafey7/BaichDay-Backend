@@ -4,10 +4,15 @@ const controller = require('../controllers/productController');
 const router = express.Router();
 
 
-// View Product
+// View Products
 router
 .route('/')
 .get(controller.ViewProducts);
+
+// View Products by Cateogies
+router
+.route('/category')
+.post(controller.ViewProductsByCategory);
 
 // Search Product
 router
