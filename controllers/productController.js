@@ -1,4 +1,6 @@
 const Product = require('../models/productModel');
+const helperController = require('../controllers/helperController');
+const User = require('../models/userModel');
 
 
 exports.ViewProducts = async (req,res) => {
@@ -51,7 +53,7 @@ exports.SearchProduct = async (req,res) => {
     }
 }
 
-exports.ViewSingleProduct = async (req,res) => {
+exports.ViewSingleProduct = async (req,res, next) => {
     try{
 
         // This function returns the time remaining (in seconds) of a product which is selected by user on the Front-End side of the application
@@ -74,18 +76,101 @@ exports.ViewSingleProduct = async (req,res) => {
         // Time difference is converted from miliseconds to seconds
         let timeRemaining = Math.ceil(diffTime / (1000));
 
-
         // If the time for bidding of a particular product is over, then update the sold status of the product from false to true
         if (timeRemaining <= 0){
-            const querySecond = Product.updateOne(filter, update, {new: true, runValidators: true});
+            const querySecond = Product.findOneAndUpdate(filter, update, {new: true, runValidators: true});
             const updateStatus = await querySecond;
             timeRemaining = 0;
         }
 
-        res.status(200).json({status: 200, message: 'success', data: timeRemaining})
+        req.body.timeRemaining = timeRemaining;
+        req.body.productDetails = findProduct;
+        next();
+        
+            // res.status(200).json({status: 200, message: 'success', data: timeRemaining})
+
     }
     catch(err){
         console.log(err);
         res.status(404).json({status: 404, message: 'fail', data: err.message})
+    }
+}
+
+
+exports.HighestBidder = async(req,res, next) => {
+    try{
+        let biddingArray = req.body.productDetails.bid;
+        let maxBid = {userID: '0', bidCost: 0};
+
+        // check for whether there is a bid on the product
+        if (biddingArray.length > 1){
+            for (let i=0;i<biddingArray.length;i++){
+                if (biddingArray[i].bidCost > maxBid.bidCost){
+                    maxBid.userID = biddingArray[i].userID;
+                    maxBid.bidCost = biddingArray[i].bidCost;
+                }
+            }
+        }
+
+        if (req.body.timeRemaining == 0){
+            req.body.maxBid = maxBid;
+            next();
+        }
+        else{
+            res.status(200).json({status: 200, message: 'success', data: req.body.timeRemaining, highestBidder: maxBid});
+        }
+        
+    }
+    catch(err){
+        console.log(err);   
+        res.status(404).json({status: 404, message: 'fail', data: err.message});
+    }
+}
+
+
+exports.BuyProduct = async (req,res) => {
+    try{
+        let updates = [];
+        // Check if no one has placed a bid on the product
+        if (req.body.maxBid.userID == '0'){
+            res.status(200).json({status: 200, message: 'success', data: req.body.timeRemaining, allowBidAgain: true});
+        }
+
+        else{
+            let biddingArray = req.body.productDetails.bid;
+            // create an object for updates
+            let objectInUpdates, walletAmountUpdated;
+
+            // const updates = [
+            //     { updateOne: { filter: { _id: 'abc123' }, update: { name: 'New name 1' } } },
+            //     { updateOne: { filter: { _id: 'def456' }, update: { name: 'New name 2' } } },
+            //     { updateOne: { filter: { _id: 'ghi789' }, update: { name: 'New name 3' } } }
+            //   ];
+    
+            for (let i=1;i<biddingArray.length;i++){
+                objectInUpdates = {};
+                if (biddingArray[i].userID == req.body.maxBid.userID){
+                    continue;
+                }
+                else{
+                    walletAmountUpdated = biddingArray[i].bidCost + biddingArray[i].walletAfterBid;
+                    objectInUpdates.updateOne = {filter: {_id: biddingArray[i].userID}, update: {wallet: walletAmountUpdated}};
+
+                    updates.push(objectInUpdates);
+                }
+            }
+            // res.status(200).json({status: 200, message: 'success', data: updates});
+
+            const updateWalletQuery = User.bulkWrite(updates);
+            const walletUpdated = await updateWalletQuery;
+            
+            res.status(200).json({status: 200, message: 'success', data: 'Wallets are updated'});
+
+
+        }
+    }
+    catch(err){
+        console.log(err);
+        res.status(404).json({status: 404, message: 'fail', data: err.message});
     }
 }

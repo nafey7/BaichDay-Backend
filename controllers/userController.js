@@ -37,7 +37,8 @@ exports.Signup = async (req,res) => {
             firstName: req.body.firstName,
             lastName: req.body.lastName,
             emailAddress: req.body.emailAddress,
-            password: pbkdf2.pbkdf2Sync(req.body.password, 'baichday-secret', 1, 32, 'sha512')
+            password: pbkdf2.pbkdf2Sync(req.body.password, 'baichday-secret', 1, 32, 'sha512'),
+            wallet: 0
         })
         let Signup = await query;
 
@@ -197,13 +198,64 @@ exports.AddProduct = async (req,res) => {
 exports.BidOnProduct = async (req,res) => {
     try{
 
-        const filter = {_id: req.body.productID};
-        const bidObject = {userID: req.body.userID, bidCost: req.body.bidCost}
-        const update = {$push: {bid: bidObject}};
+        const queryUser = User.findById(req.body.userID);
+        const UserFound = await queryUser;
 
-        // Add the Bid (containing the identity of the Bidder and Bid amount) to Bid array of the relevant product
+        const queryProduct = Product.findById(req.body.productID);
+        const ProductFound = await queryProduct;
+
+
+        // check if the user has placed a bid before on the same product
+        let biddingArray = ProductFound.bid;
+        let loopCheck = false
+        let matchedValueCounter = 0;
+        let xoxo;
+        let walletAfterBid;
+
+        for (let i=0;i<biddingArray.length;i++){
+            if (biddingArray[i].userID == req.body.userID){
+                loopCheck = true;
+                console.log(biddingArray[i]);
+                matchedValueCounter = i;
+                break;
+            }
+        }
+
+        if (loopCheck == true){
+            walletAfterBid = (biddingArray[matchedValueCounter].bidCost + UserFound.wallet)-(req.body.bidCost);
+            biddingArray.splice(matchedValueCounter, 1);
+        }
+
+        else{
+            walletAfterBid = UserFound.wallet - req.body.bidCost;
+        }
+
+        // throw new Error('Check lagaya hai to prevent middleware to function for a while');
+
+        // Check if the bid cost is greater than the cost of the product
+        if (ProductFound.cost > req.body.bidCost){
+            throw new Error ('The bid amount should be greater than the original cost of the product');
+        }
+
+        // check if wallet of a user has enough money
+        if (walletAfterBid < 0){
+            throw new Error('Wallet does not have enough coins');
+        }
+
+        // create an object containing cost of the bid, id of the bidder and the amount left in the wallet
+        const filter = {_id: req.body.productID};
+        const bidObject = {userID: req.body.userID, bidCost: req.body.bidCost, walletAfterBid: walletAfterBid};
+        biddingArray.push(bidObject)
+        const update = {bid: biddingArray};
+        // const update = {$push: {bid: bidObject}};
+
+        // Add the Bid (containing the identity of the Bidder, Bid amount, and Amount in Bidder's wallet after the bid) to Bid array of the relevant product
         const query = Product.updateOne(filter, update, {new: true, runValidators: true});
         const bidOnProduct = await query;
+
+        // Update the wallet of the User
+        const queryWallet = User.updateOne({_id: req.body.userID},{wallet: walletAfterBid},{new: true, runValidators: true});
+        const walletUpdate = await queryWallet;
 
         res.status(200).json({status: 200, message: 'success', data: bidOnProduct});
     }
@@ -337,9 +389,24 @@ exports.SubmitReviewToBidder = async (req,res) => {
     }
 }
 
-exports.BuyProduct = async(req,res) => {
+// User can charge their built-in wallet through their connected bank accounts
+exports.ChargeWallet = async(req,res) => {
     try{
-        res.send('success');
+        let filter = {_id: req.body.userID};
+
+        // Extract the old wallet amount
+        const query = User.findOne(filter).select('wallet -_id');
+        const WalletAmount = await query;
+
+        // obtain the new amount
+        let newAmount = WalletAmount.wallet + req.body.amount;
+        let update = {wallet: newAmount};
+
+        // update the amount in Database
+        const querySecond = User.findOneAndUpdate(filter, update, {new: true, runValidators: true});
+        const UpdatedAmount = await querySecond;
+
+        res.status(200).json({status: 200, message: 'success', data: UpdatedAmount});
     }
     catch(err){
         console.log(err);

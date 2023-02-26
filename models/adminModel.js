@@ -24,6 +24,9 @@ const adminSchema = new Schema({
     password: {
         type: String,
         required: true
+    },
+    wallet: {
+        type: Number
     }
 },
  {

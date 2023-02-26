@@ -1,5 +1,6 @@
 const express = require('express');
 const controller = require('../controllers/productController');
+const helperController = require('../controllers/helperController');
 
 const router = express.Router();
 
@@ -21,6 +22,6 @@ router
 // View Single Product
 router
 .route('/single')
-.post(controller.ViewSingleProduct)
+.post(controller.ViewSingleProduct, controller.HighestBidder, controller.BuyProduct);
 
 module.exports = router;

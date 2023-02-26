@@ -54,4 +54,9 @@ router
 .route('/submitreviewtobidder')
 .post(controller.SubmitReviewToBidder);
 
+// CHARGE USER'S WALLET
+router
+.route('/chargewallet')
+.post(controller.ChargeWallet);
+
 module.exports = router;
