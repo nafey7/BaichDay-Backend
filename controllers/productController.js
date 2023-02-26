@@ -60,7 +60,7 @@ exports.ViewSingleProduct = async (req,res, next) => {
         // This function returns the time remaining (in seconds) of a product which is selected by user on the Front-End side of the application
         
         let filter = {_id: req.body.productID};
-        let update = {sold: 'true'};
+        // let update = {sold: 'true'};
 
         // Extract specific product from Database which the user selects
         const query = Product.findOne(filter);
@@ -77,18 +77,14 @@ exports.ViewSingleProduct = async (req,res, next) => {
         // Time difference is converted from miliseconds to seconds
         let timeRemaining = Math.ceil(diffTime / (1000));
 
-        // If the time for bidding of a particular product is over, then update the sold status of the product from false to true
         if (timeRemaining <= 0){
-            const querySecond = Product.findOneAndUpdate(filter, update, {new: true, runValidators: true});
-            const updateStatus = await querySecond;
             timeRemaining = 0;
         }
 
         req.body.timeRemaining = timeRemaining;
         req.body.productDetails = findProduct;
+
         next();
-        
-            // res.status(200).json({status: 200, message: 'success', data: timeRemaining})
 
     }
     catch(err){
@@ -113,9 +109,16 @@ exports.HighestBidder = async(req,res, next) => {
             }
         }
 
+        // Wallet transactions for the product occurs when there is a highest bidder and the auciton is over
         if (req.body.timeRemaining == 0 && biddingArray.length > 1){
             req.body.maxBid = maxBid;
             next();
+        }
+        else if (req.body.timeRemaining == 0 && biddingArray.length == 1){
+            const queryDeleteProduct = Product.deleteOne({_id: req.body.productID});
+            const DeleteProduct = await queryDeleteProduct;
+
+            res.status(200).json({status: 200, message: 'success', data: 'The product is expired'});
         }
         else{
             res.status(200).json({status: 200, message: 'success', data: req.body.timeRemaining, highestBidder: maxBid});
@@ -132,52 +135,51 @@ exports.HighestBidder = async(req,res, next) => {
 exports.BuyProduct = async (req,res) => {
     try{
         let updates = [];
-        // Check if no one has placed a bid on the product
-        if (req.body.maxBid.userID == '0'){
-            res.status(200).json({status: 200, message: 'success', data: req.body.timeRemaining, allowBidAgain: true});
-        }
 
-        else{
-            
-            let productCost = req.body.maxBid.bidCost; 
-            let biddingArray = req.body.productDetails.bid;
-            let objectInUpdates, walletAmountUpdated;
+        let filter = {_id: req.body.productID};
+        let update = {sold: 'true'};
 
-            // Transfer the bid cost back to the users who have not won the auction bid
-            for (let i=1;i<biddingArray.length;i++){
-                objectInUpdates = {};
-                if (biddingArray[i].userID == req.body.maxBid.userID){
-                    continue;
-                }
-                else{
-                    walletAmountUpdated = biddingArray[i].bidCost + biddingArray[i].walletAfterBid;
-                    objectInUpdates.updateOne = {filter: {_id: biddingArray[i].userID}, update: {wallet: walletAmountUpdated}};
+        // If the time for bidding of a particular product is over, then update the sold status of the product from false to true
+        const querySecond = Product.findOneAndUpdate(filter, update, {new: true, runValidators: true});
+        const updateStatus = await querySecond;
+        
+        let productCost = req.body.maxBid.bidCost; 
+        let biddingArray = req.body.productDetails.bid;
+        let objectInUpdates, walletAmountUpdated;
 
-                    updates.push(objectInUpdates);
-                }
+        // Transfer the bid cost back to the users who have not won the auction bid
+        for (let i=1;i<biddingArray.length;i++){
+            objectInUpdates = {};
+            if (biddingArray[i].userID == req.body.maxBid.userID){
+                continue;
             }
+            else{
+                walletAmountUpdated = biddingArray[i].bidCost + biddingArray[i].walletAfterBid;
+                objectInUpdates.updateOne = {filter: {_id: biddingArray[i].userID}, update: {wallet: walletAmountUpdated}};
 
-            // Bulk write is used to update multiple documents with different values on same product
-            const updateWalletQuery = User.bulkWrite(updates);
-            const walletUpdated = await updateWalletQuery;
-
-            // calculate costs that will go to seller and admin
-            let newAmountAdmin = Math.ceil(0.05*productCost);
-            let newAmountSeller = Math.floor(0.95*productCost);
-
-            // updating the admin's wallet
-            const updateAdminquery = Admin.updateOne({_id: '636abe4f086b725042337410'}, {wallet: newAmountAdmin}, {new: true, runValidators: true});
-            const AdminWallet = await updateAdminquery;
-
-            // updating the seller's wallet
-            let sellerID = req.body.productDetails.userID;
-            const updateSellerQuery = User.updateOne({_id: sellerID}, {$inc: { wallet: newAmountSeller}}, {new: true, runValidators: true});
-            const updateSellerWallet = await updateSellerQuery;
-            
-            res.status(200).json({status: 200, message: 'success', data: 'Wallets are updated'});
-
-
+                updates.push(objectInUpdates);
+            }
         }
+
+        // Bulk write is used to update multiple documents with different values on same product
+        const updateWalletQuery = User.bulkWrite(updates);
+        const walletUpdated = await updateWalletQuery;
+
+        // calculate costs that will go to seller and admin
+        let newAmountAdmin = Math.ceil(0.05*productCost);
+        let newAmountSeller = Math.floor(0.95*productCost);
+
+        // updating the admin's wallet
+        const updateAdminquery = Admin.updateOne({_id: '636abe4f086b725042337410'}, {wallet: newAmountAdmin}, {new: true, runValidators: true});
+        const AdminWallet = await updateAdminquery;
+
+        // updating the seller's wallet
+        let sellerID = req.body.productDetails.userID;
+        const updateSellerQuery = User.updateOne({_id: sellerID}, {$inc: { wallet: newAmountSeller}}, {new: true, runValidators: true});
+        const updateSellerWallet = await updateSellerQuery;
+        
+        res.status(200).json({status: 200, message: 'success', data: req.body.timeRemaining, highestBidder: req.body.maxBid});
+
     }
     catch(err){
         console.log(err);
