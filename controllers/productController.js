@@ -1,6 +1,7 @@
 const Product = require('../models/productModel');
 const helperController = require('../controllers/helperController');
 const User = require('../models/userModel');
+const Admin = require('../models/adminModel');
 
 
 exports.ViewProducts = async (req,res) => {
@@ -112,7 +113,7 @@ exports.HighestBidder = async(req,res, next) => {
             }
         }
 
-        if (req.body.timeRemaining == 0){
+        if (req.body.timeRemaining == 0 && biddingArray.length > 1){
             req.body.maxBid = maxBid;
             next();
         }
@@ -137,16 +138,12 @@ exports.BuyProduct = async (req,res) => {
         }
 
         else{
+            
+            let productCost = req.body.maxBid.bidCost; 
             let biddingArray = req.body.productDetails.bid;
-            // create an object for updates
             let objectInUpdates, walletAmountUpdated;
 
-            // const updates = [
-            //     { updateOne: { filter: { _id: 'abc123' }, update: { name: 'New name 1' } } },
-            //     { updateOne: { filter: { _id: 'def456' }, update: { name: 'New name 2' } } },
-            //     { updateOne: { filter: { _id: 'ghi789' }, update: { name: 'New name 3' } } }
-            //   ];
-    
+            // Transfer the bid cost back to the users who have not won the auction bid
             for (let i=1;i<biddingArray.length;i++){
                 objectInUpdates = {};
                 if (biddingArray[i].userID == req.body.maxBid.userID){
@@ -159,10 +156,23 @@ exports.BuyProduct = async (req,res) => {
                     updates.push(objectInUpdates);
                 }
             }
-            // res.status(200).json({status: 200, message: 'success', data: updates});
 
+            // Bulk write is used to update multiple documents with different values on same product
             const updateWalletQuery = User.bulkWrite(updates);
             const walletUpdated = await updateWalletQuery;
+
+            // calculate costs that will go to seller and admin
+            let newAmountAdmin = Math.ceil(0.05*productCost);
+            let newAmountSeller = Math.floor(0.95*productCost);
+
+            // updating the admin's wallet
+            const updateAdminquery = Admin.updateOne({_id: '636abe4f086b725042337410'}, {wallet: newAmountAdmin}, {new: true, runValidators: true});
+            const AdminWallet = await updateAdminquery;
+
+            // updating the seller's wallet
+            let sellerID = req.body.productDetails.userID;
+            const updateSellerQuery = User.updateOne({_id: sellerID}, {$inc: { wallet: newAmountSeller}}, {new: true, runValidators: true});
+            const updateSellerWallet = await updateSellerQuery;
             
             res.status(200).json({status: 200, message: 'success', data: 'Wallets are updated'});
 
