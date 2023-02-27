@@ -115,7 +115,7 @@ exports.HighestBidder = async(req,res, next) => {
             next();
         }
         else if (req.body.timeRemaining == 0 && biddingArray.length == 1){
-            const queryDeleteProduct = Product.deleteOne({_id: req.body.productID});
+            const queryDeleteProduct = Product.updateOne({_id: req.body.productID}, {sold: 'expired'}, {new: true, runValidators: true});
             const DeleteProduct = await queryDeleteProduct;
 
             res.status(200).json({status: 200, message: 'success', data: 'The product is expired'});
