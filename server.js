@@ -6,11 +6,15 @@ const morgan = require('morgan');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const socket = require("socket.io");
+const cron = require('node-cron');
 
 // Routes imported
 const userRoute = require('./routes/userRoute');
 const adminRoute = require('./routes/adminRoute');
 const productRoute = require('./routes/productRoute');
+
+// Product model imported for the cron job
+const Product = require('./models/productModel');
 
 
 const app = express();
@@ -62,24 +66,114 @@ app.use((req,res,next) => {
 });
 
 // Middleware to assign a socket to user as soon as they open the chat feature of the web application (Front-End side)
-app.use((req,res,next) => {
 
-    if (req.body.chat){
+// app.use((req,res,next) => {
+
+//     if (req.body.chat){
+
         // console.log(req.protocol + '://' + req.get('host') + req.originalUrl);
-        const io = socket(server, {
-            cors: {
-                origin: "*",
-              },
-        });
 
-        req.io = io;
-    }
+//         const io = socket(server, {
+//             cors: {
+//                 origin: "*",
+//                 methods: ['GET', 'POST']
+//               },
+//         });
 
-    next();
-})
+//         req.io = io;
+//     }
+
+//     next();
+// })
 
 // Middlewares to direct the requests to their respective routes.
 app.use('/user', userRoute);
 app.use('/admin', adminRoute);
 app.use('/product', productRoute);
+
+// Crone to update the status of the products to processing when the end time is over
+cron.schedule(`* * * * *`, async () => {
+
+  try{
+    // find products whose status is false
+    const auctions = await Product.find({ sold: 'false' });
+
+    auctions.forEach(async (auction) => {
+          // check the EndTime and Current time of each product
+          const expiryTime = new Date(auction.endTime).getTime();
+          const currentTime = new Date().getTime();
+
+          // If a product has reached its EndTime, the status of the each product will be changed from false to processing
+          if (currentTime > expiryTime) {
+            console.log('Processing updated');
+            let updateStatus = await Product.updateOne({ _id: auction._id }, { $set: { sold: 'processing' } });
+          }
+        });
+  }
+  catch(err){
+    console.log(err)
+  }
+        });
+
+let userArray = [];
+
+// Implementing sockets for Chat Feature
+const io = socket(server, {
+    cors: {
+        origin: "*",
+        methods: ['GET', 'POST']
+      },
+});
+
+io.on('connection', (socket) => {
+    console.log('New user connected');
+
+    socket.on('userConnected', (userID) => {
+        userArray.push({userID: userID, socketID: socket.id});
+        const userId = socket.handshake.query.userID;
+        const socketId = `${userID}-${socket.id}`;
+        console.log('This is the handshake queryID', socketId);
+        console.log('This is the array of users', userArray);
+    });
+
+
+    socket.on('chat message', (msg, senderID) => {
+      // I must receive sender's, receiver's id and the message 
+      console.log(`Received message: ${msg}`);
+      console.log('ID of the sender is', senderID)
+      
+      // broadcast message to all connected clients
+      io.emit('chat message', msg);
+    });
+
+    socket.on('disconnect', () => {
+              console.log('User disconnected');
+            });
+
+  });
+
+
+// io.on('connection', (socket) => {
+//     console.log('New user connected');
+
+  
+//     // Receive new messages from client
+//     socket.on('message', (data) => {
+//       const message = new Message({
+//         username: data.username,
+//         text: data.text
+//       });
+  
+//       message.save((err) => {
+//         if (err) return console.error(err);
+//         io.emit('message', message);
+//       });
+//     });
+  
+//     // Handle disconnections
+//     socket.on('disconnect', () => {
+//       console.log('User disconnected');
+//     });
+//   });
+  
 
