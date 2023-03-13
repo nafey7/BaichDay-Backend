@@ -37,6 +37,10 @@ const productSchema = new Schema({
     },
     endTime: {
         type: Date
+    },
+    newOwner: {
+        type: String,
+        default: ''
     }
 },
  {

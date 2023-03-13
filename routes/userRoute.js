@@ -59,4 +59,9 @@ router
 .route('/chargewallet')
 .post(controller.ChargeWallet);
 
+// USER LOGOUT
+router
+.route('/logout')
+.post(controller.Logout);
+
 module.exports = router;

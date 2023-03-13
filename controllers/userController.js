@@ -80,6 +80,9 @@ exports.Login = async (req,res) => {
             throw new Error('Email or Password is wrong');
         }
 
+        const querySecond = User.updateOne({_id: FindUser._id}, {active: true}, {new: true, runValidators: true});
+        const ActiveStatus = await querySecond;
+
         res.status(200).json({status: 200, message: 'success', token: token, data: FindUser});
     }
     catch(err){
@@ -412,5 +415,20 @@ exports.ChargeWallet = async(req,res) => {
     catch(err){
         console.log(err);
         res.status(404).json({status: 404, message: 'fail', data: err.message});
+    }
+}
+
+exports.Logout = async (req,res) => {
+    try{
+        let filter = {_id: req.body.userID};
+        let update = {active: false};
+        const query = User.updateOne(filter, update, {new: true, runValidators: true});
+        const Logout = await query;
+
+        res.status(200).json({status: 200, message: 'success'})
+    }
+    catch(err){
+        console.log(err);
+        res.status(404).json({status: 404, message: 'fail', data: err.message})
     }
 }

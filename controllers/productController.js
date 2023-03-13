@@ -177,6 +177,10 @@ exports.BuyProduct = async (req,res) => {
         let sellerID = req.body.productDetails.userID;
         const updateSellerQuery = User.updateOne({_id: sellerID}, {$inc: { wallet: newAmountSeller}}, {new: true, runValidators: true});
         const updateSellerWallet = await updateSellerQuery;
+
+        // updating the new owner of the product
+        const newOwnerQuery  = Product.updateOne ({_id: req.body.productDetails._id}, {newOwner: req.body.maxBid.userID}, {new: true, runValidators: true});
+        const newOwnerUpdated = await newOwnerQuery;
         
         res.status(200).json({status: 200, message: 'success', data: req.body.timeRemaining, highestBidder: req.body.maxBid});
 

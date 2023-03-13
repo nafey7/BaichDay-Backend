@@ -79,6 +79,10 @@ const userSchema = new Schema({
     },
     wallet: {
         type: Number
+    },
+    active: {
+        type: Boolean,
+        default: true
     }
 },
  {
