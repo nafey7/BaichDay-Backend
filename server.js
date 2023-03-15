@@ -44,7 +44,12 @@ app.use((req, res, next) => {
     res.header('Access-Control-Allow-Methods', 'GET, PUT, POST, DELETE, PATCH, OPTIONS');
     res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
     res.header('Access-Control-Allow-Credentials', true);
-    return next();
+    if (req.method === 'OPTIONS') { // handle preflight request
+      res.sendStatus(200);
+    } else {
+      next();
+    }
+    // return next();
   });
 
 
