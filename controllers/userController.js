@@ -432,3 +432,16 @@ exports.Logout = async (req,res) => {
         res.status(404).json({status: 404, message: 'fail', data: err.message})
     }
 }
+
+exports.ChatList = async (req,res) => {
+    try{
+        const query = User.find().select('firstName lastName -_id');
+        const UserList = await query;
+
+        res.status(200).json({status: 200, message: 200, data: UserList});
+    }
+    catch(err){
+        console.log(err);
+        res.status(404).json({status: 404, message: 'fail', data: err.message});
+    }
+}

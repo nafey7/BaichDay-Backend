@@ -64,4 +64,8 @@ router
 .route('/logout')
 .post(controller.Logout);
 
+router
+.route('/chatlist')
+.get(controller.ChatList);
+
 module.exports = router;
