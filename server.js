@@ -116,6 +116,9 @@ cron.schedule(`* * * * *`, async () => {
         });
 
 let userArray = [];
+let idToRemove = '';
+let tempArray = [];
+let tempMsg = '';
 
 // Implementing sockets for Chat Feature
 const io = socket(server, {
@@ -129,21 +132,39 @@ io.on('connection', (socket) => {
     console.log('New user connected');
 
     socket.on('userConnected', (userID) => {
-        userArray.push({userID: userID, socketID: socket.id});
-        const userId = socket.handshake.query.userID;
-        const socketId = `${userID}-${socket.id}`;
-        console.log('This is the handshake queryID', socketId);
-        console.log('This is the array of users', userArray);
+      
+      idToRemove = userID;
+      tempArray = userArray.filter((obj) => obj.userID !== idToRemove);
+
+      userArray = tempArray;
+      tempArray = [];
+      idToRemove = ''
+
+      userArray.push({userID: userID, socketID: socket.id});
+      const userId = socket.handshake.query.userID;
+      const socketId = `${userID}-${socket.id}`;
+      console.log('This is the handshake queryID', socketId);
+      console.log('This is the array of users', userArray);
     });
 
 
-    socket.on('chat message', (msg, senderID) => {
-      // I must receive sender's, receiver's id and the message 
+    socket.on('chat message', (msg, senderID, receiverID) => {
+      // I must receive sender's, receiver's id and the message
+      tempMsg = ''
+
       console.log(`Received message: ${msg}`);
-      console.log('ID of the sender is', senderID)
+      console.log('ID of the sender:', senderID);
+      console.log('ID of the receiver:', receiverID);
+      console.log('SocketID of the reciever:', userArray.find(obj => obj.userID === receiverID).socketID);
+
+      tempMsg = 'Me: '+msg;
+      io.to(userArray.find(obj => obj.userID === senderID).socketID).emit('chat message', tempMsg);
+      
+      tempMsg = senderID + ': ' +msg;
+      io.to(userArray.find(obj => obj.userID === receiverID).socketID).emit('chat message', tempMsg);
       
       // broadcast message to all connected clients
-      io.emit('chat message', msg);
+      // io.emit('chat message', msg);
     });
 
     socket.on('disconnect', () => {
