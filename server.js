@@ -15,6 +15,7 @@ const productRoute = require('./routes/productRoute');
 
 // Product model imported for the cron job
 const Product = require('./models/productModel');
+const Message = require('./models/messageModel');
 
 
 const app = express();
@@ -124,6 +125,7 @@ let userArray = [];
 let idToRemove = '';
 let tempArray = [];
 let tempMsg = '';
+let query, updateMessage;
 
 // Implementing sockets for Chat Feature
 const io = socket(server, {
@@ -153,53 +155,47 @@ io.on('connection', (socket) => {
     });
 
 
-    socket.on('chat message', (msg, senderID, receiverID) => {
-      // I must receive sender's, receiver's id and the message
-      tempMsg = ''
-
-      console.log(`Received message: ${msg}`);
-      console.log('ID of the sender:', senderID);
-      console.log('ID of the receiver:', receiverID);
-      console.log('SocketID of the reciever:', userArray.find(obj => obj.userID === receiverID).socketID);
-
-      tempMsg = 'Me: '+msg;
-      io.to(userArray.find(obj => obj.userID === senderID).socketID).emit('chat message', tempMsg);
-      
-      tempMsg = senderID + ': ' +msg;
-      io.to(userArray.find(obj => obj.userID === receiverID).socketID).emit('chat message', tempMsg);
-      
-      // broadcast message to all connected clients
-      // io.emit('chat message', msg);
+    socket.on('chat message', async(msg, senderID, receiverID) => {
+      try{
+        query = Message.create({
+          senderID: senderID,
+          receiverID: receiverID,
+          content: msg.content
+        });
+        updateMessage = await query;
+        
+        tempMsg = ''
+  
+        console.log(`Received message: ${msg.content}`);
+        console.log('ID of the sender:', senderID);
+        console.log('ID of the receiver:', receiverID);
+  
+        // check if the ID of the person and its socket is present in the User Array
+        if (userArray.find(obj => obj.userID === receiverID) === undefined){
+          tempMsg = msg;
+        io.to(userArray.find(obj => obj.userID === senderID).socketID).emit('chat message', tempMsg);
+        }
+        else{
+          console.log('SocketID of the reciever:', userArray.find(obj => obj.userID === receiverID).socketID);
+  
+          tempMsg = msg;
+          io.to(userArray.find(obj => obj.userID === senderID).socketID).emit('chat message', tempMsg);
+          
+          // tempMsg = senderID + ': ' +msg;
+          tempMsg = msg;
+          io.to(userArray.find(obj => obj.userID === receiverID).socketID).emit('chat message', tempMsg);
+        }
+      }
+      catch(err){
+        console.log(err);
+      }
     });
+
 
     socket.on('disconnect', () => {
               console.log('User disconnected');
             });
 
   });
-
-
-// io.on('connection', (socket) => {
-//     console.log('New user connected');
-
-  
-//     // Receive new messages from client
-//     socket.on('message', (data) => {
-//       const message = new Message({
-//         username: data.username,
-//         text: data.text
-//       });
-  
-//       message.save((err) => {
-//         if (err) return console.error(err);
-//         io.emit('message', message);
-//       });
-//     });
-  
-//     // Handle disconnections
-//     socket.on('disconnect', () => {
-//       console.log('User disconnected');
-//     });
-//   });
   
 

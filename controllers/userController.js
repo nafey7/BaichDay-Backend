@@ -8,6 +8,7 @@ const Product = require ('../models/productModel');
 const BannedUser = require ('../models/bannedUsersModel');
 const Helper = require ('../controllers/helperController');
 const Notification = require('../models/notificationModel');
+const Message = require('../models/messageModel');
 
 // User Signup
 exports.Signup = async (req,res) => {
@@ -433,19 +434,6 @@ exports.Logout = async (req,res) => {
     }
 }
 
-exports.ChatList = async (req,res) => {
-    try{
-        const query = User.find().select('firstName lastName -_id');
-        const UserList = await query;
-
-        res.status(200).json({status: 200, message: 200, data: UserList});
-    }
-    catch(err){
-        console.log(err);
-        res.status(404).json({status: 404, message: 'fail', data: err.message});
-    }
-}
-
 exports.GetWallet = async(req,res) => {
     try{
         const query = User.findOne({_id: req.body.userID}).select('wallet -_id');
@@ -456,5 +444,64 @@ exports.GetWallet = async(req,res) => {
     catch(err){
         console.log(err);
         res.status(404).json({status: 404, message: 'fail', data: err.message})
+    }
+}
+
+exports.ChatList = async (req,res) => {
+    try{
+
+        // If the user is involved in successful bidding, find the relevant users who are connected as sellers or buyers to the user through the product
+        const query = Product.find({
+            sold: 'true',
+            $or:[
+                {userID: req.body.userID},
+                {newOwner: req.body.userID}
+            ]
+        }).select('userID newOwner -_id');
+        const productList = await query;
+
+        // Store the possible contacts in an array
+        let arr = [];
+        for (let i=0;i<productList.length;i++){
+            arr.push(productList[i].userID);
+            arr.push(productList[i].newOwner);
+        }
+
+        // Remove the repitive elements form array
+        arr = [...new Set(arr)];
+
+        // Remove the user's ID
+        arr = arr.filter(element => element !== req.body.userID);
+        console.log(arr);
+        // Find the users list that are present in the array
+        const querySecond = User.find({ _id: { $in: arr } }).select('firstName lastName');
+        const UsersList = await querySecond;
+
+        res.status(200).json({status: 200, message: 'success', data: UsersList});
+
+
+    }
+    catch(err){
+        console.log(err);
+        res.status(404).json({status: 404, message: 'fail', data: err.message});
+    }
+}
+
+exports.UserChat = async(req,res) => {
+    try{
+        const query = Message.find({
+            $or:[
+                {senderID: req.body.userID, receiverID: req.body.receiverID},
+                {senderID: req.body.receiverID, receiverID: req.body.userID}
+            ]
+        });
+        const MessageList = await query;
+
+        res.status(200).json({status: 200, message: 'success', data: MessageList});
+
+    }
+    catch(err){
+        console.log(err);
+        res.status(404).json({status: 404, message: 'fail', data: err.message});
     }
 }

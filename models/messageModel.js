@@ -5,18 +5,18 @@ const validator = require('validator');
 
 const messageSchema = new Schema({
 
-    sender: {
+    senderID: {
         type: String
     },
-    receiver: {
+    receiverID: {
         type: String
     },
     content: {
         type: String
-    },
-    conversationID: {
-        type: String
     }
+    // conversationID: {
+    //     type: String
+    // }
 },
  {
     timestamps: true

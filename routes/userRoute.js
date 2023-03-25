@@ -64,14 +64,20 @@ router
 .route('/logout')
 .post(controller.Logout);
 
-// GET LIST OF USERS THAT A USER CAN CHAT WITH
-router
-.route('/chatlist')
-.get(controller.ChatList);
-
 // GET WALLET INFORMATION OF A USER
 router
 .route('/wallet')
 .post(controller.GetWallet);
+
+// GET LIST OF USERS THAT A USER CAN CHAT WITH
+router
+.route('/chatlist')
+.post(controller.ChatList);
+
+// GET USER CHAT
+router
+.route('/chat')
+.post(controller.UserChat)
+
 
 module.exports = router;
