@@ -13,6 +13,7 @@ const Message = require('../models/messageModel');
 // SEND EMAIL TO NEW USER
 exports.SendEmailVerification = async (req,res) => {
     try{
+        // generating random pin
         let randomPin = Math.floor(Math.random() * 1000000);
 
         let transporter = nodemailer.createTransport({
