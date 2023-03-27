@@ -12,7 +12,6 @@ exports.Protect = async (req,res, next) => {
             throw new Error ('Token is not present');
         }
         token = req.body.token
-
         // Verifiy the token (Extract user Identity from token)
         const match = await jwt.verify (token, 'baichday-secret');
         const userID = match.id;

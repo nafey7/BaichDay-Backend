@@ -1,13 +1,23 @@
 const express = require('express');
 const controller = require('../controllers/userController');
+const protectController = require('../controllers/protectController');
 
 const router = express.Router();
 
+// EMAIL VERIFICATION
+router
+.route('/emailverify')
+.post(controller.SendEmailVerification);
+
+// PIN CONFIRMATION
+router
+.route('/confirmpin')
+.post(protectController.Protect,controller.ConfirmPin);
 
 // USER-SIGNUP
 router
 .route('/signup')
-.post(controller.Signup);
+.post(controller.Signup, controller.SendEmailVerification);
 
 // USER-LOGIN
 router

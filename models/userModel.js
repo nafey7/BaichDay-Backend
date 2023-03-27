@@ -83,6 +83,13 @@ const userSchema = new Schema({
     active: {
         type: Boolean,
         default: true
+    },
+    emailVerified: {
+        type: Boolean,
+        default: false
+    },
+    pin: {
+        type: String
     }
 },
  {

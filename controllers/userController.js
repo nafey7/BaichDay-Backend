@@ -10,8 +10,91 @@ const Helper = require ('../controllers/helperController');
 const Notification = require('../models/notificationModel');
 const Message = require('../models/messageModel');
 
+// SEND EMAIL TO NEW USER
+exports.SendEmailVerification = async (req,res) => {
+    try{
+        let randomPin = Math.floor(Math.random() * 1000000);
+
+        let transporter = nodemailer.createTransport({
+            host: "smtp-mail.outlook.com",
+            port: 587,
+            secure: false,
+            auth: {
+              user: process.env.EMAIL,
+              pass: process.env.PASSWORD
+            },
+            tls: {
+                ciphers:'SSLv3'
+            }
+          });
+          transporter.verify(function (error, success) {
+            if (error) {
+              console.log(error);
+            } else {
+              console.log("Server is ready to take our messages");
+            }
+          });
+          let mailOptions = {
+            from: process.env.EMAIL,
+            to: req.body.emailAddress,
+            subject: 'Welcome to Baichday',
+            html: `<p>Use the following PIN for authentication <br /> <strong>${randomPin}</strong></p>`
+          };
+          
+          await transporter.sendMail(mailOptions, function(error, info){
+            if (error) {
+                console.log(error);
+                throw new Error ('Unexpected Error while sending Email')
+            } else {
+                console.log('Email sent: ' + info.response);
+                
+            }
+          });
+
+          const query = User.findOneAndUpdate({_id: req.body.userID}, {pin: randomPin}, {new: true, runValidators: true});
+          
+          const UserPinUpdated = await query;
+
+        const token = jwt.sign({id: UserPinUpdated._id}, 'baichday-secret');
+
+          res.status(200).json({status: 200, message: 'success', token: token});
+    }
+    catch(err){
+        console.log(err);
+        res.status(400).json({status: 400, message: 'fail', data: err.message});
+    }
+}
+
+// CONFIRM PIN AFTER SIGNUP
+exports.ConfirmPin = async (req,res) => {
+    try{
+        const query = User.findOne({_id: req.body.userID});
+        const UserInfo = await query;
+
+        if (UserInfo.pin !== req.body.pin){
+            throw new Error("Wrong Pin")
+        }
+        else{
+            const querySecond = Notification.create({
+                userID: UserInfo._id,
+                notify: true,
+                notification: {content: 'Welcome to BaichDay! Charge your wallet and start bidding now!', date: req.body.dateApi, time: req.body.timeApi}
+            })
+            const NotificationExtract = await querySecond;
+
+            const token = jwt.sign({id: UserInfo._id}, 'baichday-secret');
+
+            res.status(200).json({status: 200, message: 'success', token: token, data: UserInfo, notification: NotificationExtract});
+        }
+    }
+    catch(err){
+        console.log(err);
+        res.status(400).json({status: 404, message: 'fail', data: err.message});
+    }
+}
+
 // User Signup
-exports.Signup = async (req,res) => {
+exports.Signup = async (req,res, next) => {
     try{
 
         // Check: Whether user banned or not
@@ -44,14 +127,20 @@ exports.Signup = async (req,res) => {
         })
         let Signup = await query;
 
-        const querySecond = Notification.create({
-            userID: Signup._id,
-            notify: true,
-            notification: {content: 'Welcome to BaichDay! Charge your wallet and start bidding now!', date: req.body.dateApi, time: req.body.timeApi}
-        })
-        const NotificationExtract = await querySecond;
+        req.body.userID = Signup._id;
+
+        // const querySecond = Notification.create({
+        //     userID: Signup._id,
+        //     notify: true,
+        //     notification: {content: 'Welcome to BaichDay! Charge your wallet and start bidding now!', date: req.body.dateApi, time: req.body.timeApi}
+        // })
+        // const NotificationExtract = await querySecond;
+
+        // const token = jwt.sign({id: Signup._id}, 'baichday-secret');
         
-        res.status(200).json({status: 201, message: 'success', data: Signup, notification: NotificationExtract});
+        // res.status(200).json({status: 201, message: 'success', token: token, data: Signup, notification: NotificationExtract});
+
+        next();
     }
     catch(err){
         console.log(err);
