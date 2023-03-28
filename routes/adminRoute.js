@@ -18,4 +18,9 @@ router
 .route('/home')
 .post(controller.Home)
 
+// SENDING DETAILS OF ALL USERS
+router
+.route('/allusers')
+.post(controller.AllUsers);
+
 module.exports = router;

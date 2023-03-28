@@ -131,3 +131,17 @@ exports.Home = async (req,res) => {
         res.status(404).json({status: 404, message: 'fail', data: err.message});
     }
 }
+
+exports.AllUsers = async (req, res) => {
+    try{
+        // Details of every user
+        const query = User.find({});
+        const userData = await query;
+
+        res.status(200).json({status: '200', message: 'success', data: userData});
+    }
+    catch(err){
+        console.log(err);
+        res.status(404).json({status: 404, message: 'fail', data: err.message});
+    }
+}
