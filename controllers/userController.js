@@ -288,8 +288,14 @@ exports.BidOnProduct = async (req,res) => {
         const queryUser = User.findById(req.body.userID);
         const UserFound = await queryUser;
 
+
+
         const queryProduct = Product.findById(req.body.productID);
         const ProductFound = await queryProduct;
+
+        if (UserFound.wallet < ProductFound.cost){
+            throw new Error('Wallet does not have enough coins')
+        }
 
 
         // check if the user has placed a bid before on the same product
