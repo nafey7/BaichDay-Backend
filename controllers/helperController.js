@@ -32,6 +32,7 @@ exports.EvaluateParticularBid = (viewProducts, req) => {
                 mockData.cost = viewProducts[i].cost;
                 mockData.description = viewProducts[i].description;
                 mockData.sold = viewProducts[i].sold;
+                mockData.newOwner = viewProducts[i].newOwner;
                 
                 bidArray = viewProducts[i].bid
                 bidArrayLength = bidArray.length;
