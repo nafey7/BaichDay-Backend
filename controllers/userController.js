@@ -208,6 +208,9 @@ exports.EditProfile = async(req,res) => {
         if (req.body.firstName){
             update.firstName= req.body.firstName;
         }
+        if (req.body.image){
+            update.image = req.body.image;
+        }
         if (req.body.lastName){
             update.lastName = req.body.lastName;
         }
