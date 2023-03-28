@@ -13,9 +13,9 @@ const userRoute = require('./routes/userRoute');
 const adminRoute = require('./routes/adminRoute');
 const productRoute = require('./routes/productRoute');
 
-// Product model imported for the cron job
-const Product = require('./models/productModel');
 const Message = require('./models/messageModel');
+
+const HelperController = require('./controllers/helperController');
 
 
 const app = express();
@@ -101,21 +101,8 @@ app.use('/product', productRoute);
 cron.schedule(`* * * * *`, async () => {
 
   try{
-    // find products whose status is false
-    const auctions = await Product.find({ sold: 'false' });
-
-    auctions.forEach(async (auction) => {
-          // check the EndTime and Current time of each product
-          const expiryTime = new Date(auction.endTime).getTime();
-          const currentTime = new Date().getTime();
-
-          // If a product has reached its EndTime, the status of the each product will be changed from false to processing
-          if (currentTime > expiryTime) {
-            console.log('Processing updated');
-            let updateStatus = await Product.updateOne({ _id: auction._id }, { $set: { sold: 'processing' } });
-          }
-        });
-  }
+    let autopayment = await HelperController.AutoPayment('Auto-payment implemented');
+    }
   catch(err){
     console.log(err)
   }

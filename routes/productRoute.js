@@ -22,6 +22,6 @@ router
 // View Single Product
 router
 .route('/single')
-.post(controller.ViewSingleProduct, controller.HighestBidder, controller.BuyProduct);
+.post(controller.ViewSingleProduct, controller.HighestBidder);
 
 module.exports = router;

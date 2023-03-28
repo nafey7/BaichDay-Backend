@@ -130,17 +130,6 @@ exports.Signup = async (req,res, next) => {
 
         req.body.userID = Signup._id;
 
-        // const querySecond = Notification.create({
-        //     userID: Signup._id,
-        //     notify: true,
-        //     notification: {content: 'Welcome to BaichDay! Charge your wallet and start bidding now!', date: req.body.dateApi, time: req.body.timeApi}
-        // })
-        // const NotificationExtract = await querySecond;
-
-        // const token = jwt.sign({id: Signup._id}, 'baichday-secret');
-        
-        // res.status(200).json({status: 201, message: 'success', token: token, data: Signup, notification: NotificationExtract});
-
         next();
     }
     catch(err){
@@ -324,8 +313,6 @@ exports.BidOnProduct = async (req,res) => {
         else{
             walletAfterBid = UserFound.wallet - req.body.bidCost;
         }
-
-        // throw new Error('Check lagaya hai to prevent middleware to function for a while');
 
         // Check if the bid cost is greater than the cost of the product
         if (ProductFound.cost > req.body.bidCost){
