@@ -135,7 +135,7 @@ exports.Home = async (req,res) => {
 exports.AllUsers = async (req, res) => {
     try{
         // Details of every user
-        const query = User.find({});
+        const query = User.find().select('-password');
         const userData = await query;
 
         res.status(200).json({status: '200', message: 'success', data: userData});
