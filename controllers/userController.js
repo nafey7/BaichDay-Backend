@@ -381,6 +381,20 @@ exports.ViewAllBidProducts = async (req,res) => {
     }
 }
 
+// View All Products I have posted on the auction platform
+exports.ViewMyProducts = async (req,res) => {
+    try{
+        const query = Product.find({userID: req.body.userID});
+        const viewProducts = await query;
+
+        res.status(200).json({status: 200, message: 'success', data: viewProducts});
+    }
+    catch(err){
+        console.log(err);
+        res.status(404).json({status: 404, message: 'fail', data: err.message});
+    }
+}
+
 // Give Rating to a SELLER
 exports.SubmitReviewToSeller = async (req,res) => {
     try{

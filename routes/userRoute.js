@@ -54,6 +54,11 @@ router
 .route('/viewallbidproducts')
 .post(controller.ViewAllBidProducts);
 
+// USER CAN VIEW ALL THE PRODUCTS THEY HAVE UPLOADED
+router
+.route('/viewmyproducts')
+.post(controller.ViewMyProducts)
+
 // SUBMIT A REVIEW TO SELLER
 router
 .route('/submitreviewtoseller')
