@@ -8,10 +8,13 @@ exports.ViewProducts = async (req,res) => {
     try{
         // This function returns products and their information in response which users can bid on.
 
+        let finalData = [];
         const query = Product.find({
             sold: 'false'
         })
         const ViewProducts = await query;
+
+        // for (let i)
 
         res.status(200).json({status: 200, message: 'success', data: ViewProducts})
     }
