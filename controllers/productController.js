@@ -9,14 +9,40 @@ exports.ViewProducts = async (req,res) => {
         // This function returns products and their information in response which users can bid on.
 
         let finalData = [];
+
         const query = Product.find({
             sold: 'false'
         })
         const ViewProducts = await query;
 
-        // for (let i)
+        for (let i=0;i<ViewProducts.length;i++){
 
-        res.status(200).json({status: 200, message: 'success', data: ViewProducts})
+            let now = new Date();
+            let timestamp = now.getTime();
+            let nowDate = new Date(timestamp);
+        
+        
+            let diffTime = ViewProducts[i].endTime - nowDate;
+
+            let timeRemaining = Math.ceil(diffTime / (1000));
+
+            finalData.push({
+                _id: ViewProducts[i]._id,
+                name: ViewProducts[i].name,
+                cost: ViewProducts[i].cost,
+                image: ViewProducts[i].image,
+                description: ViewProducts[i].description,
+                category: ViewProducts[i].category,
+                userID: ViewProducts[i].userID,
+                sold: ViewProducts[i].sold,
+                bid: ViewProducts[i].bid,
+                endTime: ViewProducts[i].endTime,
+                newOwner: ViewProducts[i].newOwner,
+                timeRemaining: timeRemaining
+            });
+        }
+
+        res.status(200).json({status: 200, message: 'success', data: finalData})
     }
     catch(err){
         console.log(err);
