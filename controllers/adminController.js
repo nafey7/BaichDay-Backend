@@ -123,7 +123,7 @@ exports.Home = async (req,res) => {
 
         FinalData.sales = EarningsAndSales;
 
-        res.send(FinalData);
+        res.status(200).json({status: 200, message: 'success', data: FinalData});
 
     }
     catch(err){
@@ -138,7 +138,20 @@ exports.AllUsers = async (req, res) => {
         const query = User.find().select('-password');
         const userData = await query;
 
-        res.status(200).json({status: '200', message: 'success', data: userData});
+        res.status(200).json({status: 200, message: 'success', data: userData});
+    }
+    catch(err){
+        console.log(err);
+        res.status(404).json({status: 404, message: 'fail', data: err.message});
+    }
+}
+
+exports.AllProducts = async (req,res) => {
+    try{
+        const query = Product.find();
+        const productData = await query;
+
+        res.status(200).json({status: 200, message: 'success', data: productData});
     }
     catch(err){
         console.log(err);

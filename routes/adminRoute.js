@@ -23,4 +23,9 @@ router
 .route('/allusers')
 .post(controller.AllUsers);
 
+// SENDING DETAILS OF ALL PRODUCTS
+router
+.route('/allproducts')
+.post(controller.AllProducts);
+
 module.exports = router;

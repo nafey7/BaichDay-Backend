@@ -99,14 +99,17 @@ app.use('/product', productRoute);
 
 // Crone to update the status of the products to processing when the end time is over
 cron.schedule(`* * * * *`, async () => {
-
   try{
+
     let autopayment = await HelperController.AutoPayment('Auto-payment implemented');
-    }
-  catch(err){
-    console.log(err)
+
   }
-        });
+  catch(err){
+
+    console.log(err);
+  
+  }
+});
 
 let userArray = [];
 let idToRemove = '';
