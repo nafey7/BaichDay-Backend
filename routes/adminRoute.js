@@ -28,4 +28,9 @@ router
 .route('/allproducts')
 .post(controller.AllProducts);
 
+// SENDING NAME OF THE USER BY CATCHING ID
+router
+.route('/username')
+.post(controller.UserNames);
+
 module.exports = router;

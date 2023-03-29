@@ -158,3 +158,18 @@ exports.AllProducts = async (req,res) => {
         res.status(404).json({status: 404, message: 'fail', data: err.message});
     }
 }
+
+exports.UserNames = async (req,res) => {
+    try{
+        const query = User.findOne({_id: req.body.userID});
+        const userName = await query;
+
+        let name = userName.firstName + ' ' + userName.lastName;
+        res.status(200).json({status: 200, message: 'success', data: name});
+
+    }
+    catch(err){
+        console.log(err);
+        res.status(404).json({status: 404, message: 'fail', data: err.message});
+    }
+}
