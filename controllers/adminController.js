@@ -42,14 +42,17 @@ exports.BanUser = async (req,res) => {
     try{
 
         // Adding credentials (email address, phone number and home address) of user to the database of Banned users. User with these credentials will not be permitted on the auction platform for registration/Signup
+
+        const query = User.find({_id: req.body.userID});
+        const UserInfo = await query
         
-        const query = bannedUser.create({
-        emailAddress: req.body.emailAddress,
-        phoneNumber: req.body.phoneNumber,
-        address: req.body.address
+        const banQuery = bannedUser.create({
+        emailAddress: UserInfo.emailAddress,
+        phoneNumber: UserInfo.phoneNumber,
+        address: UserInfo.address
         });
 
-        const banUser = await query;
+        const banUser = await banQuery;
 
         res.status(201).json({status: 201, message: 'success', data: banUser});
     }
