@@ -13,7 +13,7 @@ exports.Login = async (req,res, next) => {
         // Find query which will return entity from database with provided credentials (email address and password)
         const query = Admin.findOne({
             emailAddress : req.body.emailAddress,
-            password: pbkdf2.pbkdf2Sync(req.body.password, 'baichday-secret', 1, 32, 'sha512')
+            password: req.body.password
         })
         const Login = await query;
 
