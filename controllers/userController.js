@@ -227,7 +227,7 @@ exports.EditProfile = async(req,res) => {
             update.country = req.body.country;
         }
         if (req.body.password){
-            update.password = req.body.password;
+            update.password = pbkdf2.pbkdf2Sync(req.body.password, 'baichday-secret', 1, 32, 'sha512');
         }
 
         // Query to update the provided details by the user
