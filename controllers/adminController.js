@@ -64,6 +64,13 @@ exports.BanUser = async (req,res) => {
 
 exports.Home = async (req,res) => {
     try{
+
+        // Later to use for revenue generation and items sold, both by categories
+        let itemsByCategory = {Collectibles:0, Sporting:0, Electronics:0, Fashion:0, Toys:0, Music:0, Cars:0, Other:0};
+        let revenueByCategory = {Collectibles:0, Sporting:0, Electronics:0, Fashion:0, Toys:0, Music:0, Cars:0, Other:0};
+        let totalProducts = 0;
+        let totalAmount = 0;
+
         // Earnings, Products Sold, Number of registered users, Active users maybe (active attribute true on login and false on logout)
         let filter, filterProductQuantity;
 
@@ -125,6 +132,71 @@ exports.Home = async (req,res) => {
         let EarningsAndSales = {income: (productCost[0].totalCost)*0.05, productsSold: productQuantity, ActiveUsers: ActiveUsers, NumberOfUsers: NumberOfUsers};
 
         FinalData.sales = EarningsAndSales;
+
+
+        const ProductsByCategory = await Product.find({ sold: 'true' }).select('-image');
+        ProductsByCategory.forEach(async (product) => {
+            if (product.category){
+                
+                totalProducts += 1;
+                totalAmount += product.cost;
+
+                if (product.category == 'Collectibles'){
+                    itemsByCategory.Collectibles += 1;
+                    revenueByCategory.Collectibles += product.cost;
+                }
+                else if (product.category == 'Sporting'){
+                    itemsByCategory.Sporting += 1;
+                    revenueByCategory.Sporting += product.cost;
+                }
+                else if (product.category == 'Electronics'){
+                    itemsByCategory.Electronics += 1;
+                    revenueByCategory.Electronics += product.cost;
+                }
+                else if (product.category == 'Fashion'){
+                    itemsByCategory.Fashion += 1;
+                    revenueByCategory.Fashion += product.cost;
+                }
+                else if (product.category == 'Toys'){
+                    itemsByCategory.Toys += 1;
+                    revenueByCategory.Toys += product.cost;
+                }
+                else if (product.category == 'Music'){
+                    itemsByCategory.Music += 1;
+                    revenueByCategory.Music += product.cost;
+                }
+                else if (product.category == 'Cars'){
+                    itemsByCategory.Cars += 1;
+                    revenueByCategory.Cars += product.cost;
+                }
+                else if (product.category == 'Other'){
+                    itemsByCategory.Other += 1;
+                    revenueByCategory.Other += product.cost;
+                }
+            }
+          });
+
+        Object.entries(itemsByCategory).forEach(([key, value]) => {
+            itemsByCategory[key] = Math.round(((value/totalProducts)*100));
+          });
+        Object.entries(revenueByCategory).forEach(([key, value]) => {
+            revenueByCategory[key] = Math.round(((value/totalAmount)*100));
+        });
+
+        let labelsArray = [];
+        let revenueByCategoryArray = [];
+        let itemsByCategoryArray = [];
+        Object.entries(itemsByCategory).forEach(([key, value]) => {
+          labelsArray.push(key);
+          itemsByCategoryArray.push(value);
+        });
+        Object.entries(revenueByCategory).forEach(([key, value]) => {
+            revenueByCategoryArray.push(value);
+        });
+
+        FinalData.labels = labelsArray;
+        FinalData.itemsByCategory = itemsByCategoryArray;
+        FinalData.revenueByCategory = revenueByCategoryArray;
 
         res.status(200).json({status: 200, message: 'success', data: FinalData});
 

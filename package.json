@@ -1,6 +1,7 @@
 {
   "scripts": {
-    "start": "node server.js"
+    "start": "node server.js",
+    "cypress": "cypress open"
   },
   "dependencies": {
     "cors": "^2.8.5",
@@ -18,5 +19,8 @@
   },
   "engines": {
     "node": "^18"
+  },
+  "devDependencies": {
+    "cypress": "^12.9.0"
   }
 }
