@@ -605,3 +605,16 @@ exports.UserChat = async(req,res) => {
         res.status(404).json({status: 404, message: 'fail', data: err.message});
     }
 }
+
+exports.DeleteAccount = async (req,res) => {
+    try{
+        const query = User.findOneAndDelete({_id: req.body.userID});
+        const DeleteAccount = await query;
+
+        res.status(200).json({status: 200, message: 'success', data: "Account is Deleted"})
+    }
+    catch(err){
+        console.log(err);
+        res.status(404).json({status: 404, message:'fail', data: err.message});
+    }
+}

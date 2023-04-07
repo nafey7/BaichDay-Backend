@@ -94,5 +94,10 @@ router
 .route('/chat')
 .post(controller.UserChat)
 
+// DELETE ACCOUNT
+router
+.route('/deleteaccount')
+.post(controller.DeleteAccount)
+
 
 module.exports = router;
