@@ -6,7 +6,7 @@ describe('Deactivate Functionality', () => {
         console.log("Error", err)
         return false
       })
-      cy.get('input[data-cy=email-login]').type('m.arslantarar1@gmail.com')
+      cy.get('input[data-cy=email-login]').type('nafeymoiz007@gmail.com')
       cy.get('input[data-cy=password-login]').type('abcd1234')
       cy.get('input[data-cy=customer-radio]').check()
       cy.get('button[data-cy=login-button]').click()
@@ -18,7 +18,7 @@ describe('Deactivate Functionality', () => {
       cy.get('#delete-button').click()
       cy.get('#confirm-button').click()
       cy.url().should('eq', 'http://localhost:3000/login')
-      cy.get('input[data-cy=email-login]').type('m.arslantarar1@gmail.com')
+      cy.get('input[data-cy=email-login]').type('nafeymoiz007@gmail.com')
       cy.get('input[data-cy=password-login]').type('abcd1234')
       cy.get('input[data-cy=customer-radio]').check()
       cy.get('button[data-cy=login-button]').click()

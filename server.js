@@ -13,11 +13,13 @@ const userRoute = require('./routes/userRoute');
 const adminRoute = require('./routes/adminRoute');
 const productRoute = require('./routes/productRoute');
 
+// Message Model is imported for implementing real-time chat
 const Message = require('./models/messageModel');
 
+// Function imported used in cron-job
 const HelperController = require('./controllers/helperController');
 
-
+// making express server
 const app = express();
 
 // Server starting at a specific port number
@@ -50,7 +52,6 @@ app.use((req, res, next) => {
     } else {
       next();
     }
-    // return next();
   });
 
 
@@ -71,26 +72,6 @@ app.use((req,res,next) => {
     next();
 });
 
-// Middleware to assign a socket to user as soon as they open the chat feature of the web application (Front-End side)
-
-// app.use((req,res,next) => {
-
-//     if (req.body.chat){
-
-        // console.log(req.protocol + '://' + req.get('host') + req.originalUrl);
-
-//         const io = socket(server, {
-//             cors: {
-//                 origin: "*",
-//                 methods: ['GET', 'POST']
-//               },
-//         });
-
-//         req.io = io;
-//     }
-
-//     next();
-// })
 
 // Middlewares to direct the requests to their respective routes.
 app.use('/user', userRoute);
@@ -171,7 +152,6 @@ io.on('connection', (socket) => {
           tempMsg = msg;
           io.to(userArray.find(obj => obj.userID === senderID).socketID).emit('chat message', tempMsg);
           
-          // tempMsg = senderID + ': ' +msg;
           tempMsg = msg;
           io.to(userArray.find(obj => obj.userID === receiverID).socketID).emit('chat message', tempMsg);
         }

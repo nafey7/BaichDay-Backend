@@ -574,7 +574,7 @@ exports.ChatList = async (req,res) => {
         arr = arr.filter(element => element !== req.body.userID);
         console.log(arr);
         // Find the users list that are present in the array
-        const querySecond = User.find({ _id: { $in: arr } }).select('firstName lastName');
+        const querySecond = User.find({ _id: { $in: arr } }).select('-password -phoneNumber -address -wallet');
         const UsersList = await querySecond;
 
         res.status(200).json({status: 200, message: 'success', data: UsersList});
