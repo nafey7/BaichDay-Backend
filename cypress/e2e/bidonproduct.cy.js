@@ -1,6 +1,6 @@
 describe('Bidding Functionality', () => {
     it('Bidding successful', () => {
-      var bid = 300
+      var bid = 400
       cy.visit(Cypress.env('base_url') + '/login')
       cy.wait(2000)
       cy.on('uncaught:exception', (err, runnable) => {
