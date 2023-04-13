@@ -221,6 +221,20 @@ exports.AllUsers = async (req, res) => {
     }
 }
 
+exports.AllBanned = async (req, res) => {
+    try{
+        // Details of every user
+        const query = bannedUser.find();
+        const bannedUserData = await query;
+
+        res.status(200).json({status: 200, message: 'success', data: bannedUserData});
+    }
+    catch(err){
+        console.log(err);
+        res.status(404).json({status: 404, message: 'fail', data: err.message});
+    }
+}
+
 exports.AllProducts = async (req,res) => {
     try{
         const query = Product.find();

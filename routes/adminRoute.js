@@ -23,6 +23,11 @@ router
 .route('/allusers')
 .post(controller.AllUsers);
 
+// SENDING DETAILS OF ALL BANNED USERS
+router
+.route('/allbannedusers')
+.post(controller.AllBanned);
+
 // SENDING DETAILS OF ALL PRODUCTS
 router
 .route('/allproducts')
