@@ -71,7 +71,7 @@ exports.SearchProduct = async (req,res) => {
         // This function is used to search for the products by their names
 
         const query = Product.find({
-            name: {$regex: req.body.name, $options : 'i'}
+            name: {$regex: req.body.name, $options : 'i'}, sold: 'false'
         });
         const searchProduct = await query;
 
