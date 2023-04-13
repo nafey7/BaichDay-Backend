@@ -10,6 +10,7 @@ describe('Login Functionality', () => {
       cy.get('input[data-cy=password-login]').type('abcd1234');
       cy.get('input[data-cy=customer-radio]').check();
       cy.get('button[data-cy=login-button]').click();
+      cy.wait(2000)
       cy.url().should('eq', 'http://localhost:3000/');
       cy.wait(3000)
     });

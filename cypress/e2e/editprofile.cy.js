@@ -1,10 +1,10 @@
 describe('Edit Profile Functionality', () => {
     it('Edit all details', () => {
       let update = {
-        firstName: "Muhammad Arslan",
-        lastName: "Ullah Tarar",
-        password: "abcd1234",
-        contact: '03214564567',
+        firstName: "Arslan",
+        lastName: "Tarar",
+        password: "abcd12345",
+        contact: '03214567567',
         address: "House 333 B, Phase 4, DHA",
         city: "Lahore"
       }
@@ -29,7 +29,7 @@ describe('Edit Profile Functionality', () => {
       cy.get('input[data-cy=address-input]').type(update.address, {force: true})
       cy.get('input[data-cy=city-input]').type(update.city, {force: true})
       cy.get('.container').eq(0).find('div').eq(2).find('div').eq(1).find('div').find('#country-select').click()
-      cy.contains('Pakistan').click()
+      cy.contains('Portugal').click()
       cy.get('#apply-button').click()
       cy.wait(3000)
       cy.get('input[data-cy=firstName-input]').should('have.attr', 'placeholder', update.firstName)
