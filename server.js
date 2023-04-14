@@ -39,7 +39,7 @@ app.use(express.json({limit: '10mb'}));
 
 // Middleware to allow frontend links which can access the server
 app.use((req, res, next) => {
-    const allowedOrigins = ['https://63764ffe6cf2ba262ac49354--baichday.netlify.app','http://localhost:3000', 'http://localhost:7000', 'https://64294d63caa5da6985e9cb00--beamish-mooncake-10ca2b.netlify.app, https://baichdaypk.netlify.app', 'https://baichdaypakistan.netlify.app'];
+    const allowedOrigins = ['https://63764ffe6cf2ba262ac49354--baichday.netlify.app','http://localhost:3000', 'http://localhost:7000', 'https://64294d63caa5da6985e9cb00--beamish-mooncake-10ca2b.netlify.app, https://baichdaypk.netlify.app', 'https://baichdaypakistan.netlify.app, https://baichdaybackup.netlify.app'];
     const origin = req.headers.origin;
     if (allowedOrigins.includes(origin)) {
          res.setHeader('Access-Control-Allow-Origin', origin);
